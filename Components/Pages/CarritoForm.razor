@@ -1,0 +1,72 @@
+﻿@page "/carrito/nuevo"
+@page "/carrito/editar/{Id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigator;
+@inject IRepositorioCarritos _repositorio;
+<h2>@_mensaje Producto</h2>
+<EditForm Model="_carrito" FormName="frmCarrito" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="row mb-3">
+        <label for="txtNombre" class="col-2 col-form-label">Client</label>
+        <div class="col-10">
+            <InputText id="txtNombre" class="form-control" @bind-Value="_carrito.NombreUsuario" />
+            <ValidationMessage For="()=>_carrito.NombreUsuario" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtNombre" class="col-2 col-form-label">Producto</label>
+        <div class="col-10">
+            <InputText id="txtNombre" class="form-control" @bind-Value="_carrito.NombreProducto" />
+            <ValidationMessage For="()=>_carrito.NombreProducto" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtStock" class="col-2 col-form-label">Existencias de Producto</label>
+        <div class="col-10">
+            <InputNumber id="txtStock" class="form-control" @bind-Value="_carrito.Cantidad" />
+            <ValidationMessage For="()=>_carrito.Cantidad" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button class="btn btn-danger ms-3" @onclick="Cancelar" @onclick:preventDefault>Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private string _mensaje = "";
+    private Carrito? _carrito = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (Id > 0)
+        {
+            _carrito = await _repositorio.Get(Id);
+            _mensaje = "Modificar";
+        }
+        else
+        {
+            _mensaje = "Neva";
+        }
+    }
+
+    private async Task Guardar()
+    {
+        if (Id > 0)
+        {
+            await _repositorio.Update(Id, _carrito!);
+        }
+        else
+        {
+            await _repositorio.Add(_carrito!);
+        }
+        Cancelar();
+    }
+
+    private void Cancelar()
+    {
+        _navigator.NavigateTo("/carrito");
+    }
+}
